@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+.book img{
+	height: 180px;
+	width: 160px;
+}
+.book img:hover{
+	height: 270px;
+	width: 200px;
+}
+.table{
+	width: 100%;
+}
+
+.form-group div{
+	display: inline;
+}
+
+.bookListSub{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;	
+}
+
+.bookListSub div{
+	width: 30%;
+	display: inline;
+}

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Mapper">
+	<!-- 유나꺼 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- 회원가입 아이디 중복 확인 -->
+	<select id="userCheckID" parameterType="String" resultType="String">
+		SELECT userID FROM user WHERE userID=#{userID}
+	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="userInsert" parameterType="Pack01.UserDTO">
+		INSERT INTO user(userName, userID, userPW, phone, email, address, postNum, birthday) 
+		VALUES (#{userName}, #{userID}, #{userPW}, #{phone}, #{email}, #{address}, #{postNum}, #{birthday})
+	</insert>
+	
+	<!-- 사용자 로그인 -->
+	<select id="userCheck" parameterType="Pack01.userLoginDTO" resultType="String">
+		SELECT userID FROM user WHERE userID=#{userID} AND userPW=#{userPW}
+	</select>
+	
+	<!-- 관리자 로그인 -->
+	<select id="adminCheck" parameterType="Pack01.adminLoginDTO" resultType="String">
+		SELECT adminID FROM admin WHERE adminID=#{adminID} AND adminPW=#{adminPW}
+	</select>
+	
+	<!-- 관리자 모드 : 사용자 대출 현황 보기 -->
+	<select id="conCheckOUt" resultType="Pack01.checkOutDTO">
+		SELECT userID, ISBN, bookID, checkOutDate, checkInDate, checkState, reservationState FROM checkout
+	</select>
+	
+	<!-- 관리자 모드 : 사용자 대출책 ISBN 찾기 -->
+	<select id="findISBN" parameterType="int" resultType="String">
+		SELECT ISBN FROM book WHERE bookID = ${bookID}
+	</select>
+	
+	<!-- 관리자 모드 : bookID 중복 체크 -->
+	<select id="checkBookID" parameterType="int" resultType="Pack01.CheckOutBean">
+		SELECT bookID,checkState FROM checkout WHERE bookID = #{bookID} and checkState = 'O'
+	</select>
+	
+	<!-- 관리자 모드 : 사용자 대출 업로드 -->
+	<insert id="insertCheckOut" parameterType="Pack01.checkOutDTO">
+		INSERT INTO checkout (userID, ISBN, bookID, checkInDate)
+		VALUES ('${userID}', '${ISBN}', ${bookID}, DATE_ADD(NOW(), INTERVAL 7 DAY))
+	</insert>
+	<update id="updateCheckOut" parameterType="int">
+		update book set checkOutState = 'O' where bookID = ${bookID}
+	</update>
+	
+<!-- 여기 추가!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+	<!-- 사용자 모드 : 아이디 찾기 -->
+	<select id="findIDcheck" parameterType="Pack01.User" resultType="String">
+		SELECT userID FROM user WHERE userName=#{userName} AND phone=#{phone}
+	</select>
+
+	<!-- 사용자 모드 : 비밀번호 찾기 -->
+	<select id="findPWcheck" parameterType="Pack01.User" resultType="String">
+		SELECT userPW FROM user WHERE userID=#{userID} AND userName=#{userName} AND phone=#{phone}
+	</select>
+
+	<!-- 사용자 모드 : 비밀번호 변경하기 -->
+	<update id="changePW" parameterType="Pack01.User">
+		UPDATE user SET userPW=#{userPW} WHERE userID=#{userID}
+	</update>
+	
+	
+	
+	<!-- 진현님꺼(관리자쪽)/////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<select id="adminSearchBook" parameterType="Pack01.BookSearchDTO" resultType="Pack01.AdminBookDto">
+    	select * from book where ${searchItem} LIKE '%${searchText}%' order by ISBN DESC
+	</select>
+	
+	<insert id="insert" parameterType="Pack01.AdminBookDto">
+		insert into book(ISBN,bookID,bookName,author,publisher,checkOutState,reservationState,registDate,register,detail)
+		values('${ISBN}',#{bookID},#{bookName},#{author},#{publisher},#{checkOutState},#{reservationState},#{registDate},#{register},#{detail})
+	</insert>
+	
+	  <select id="select" parameterType="int" resultType="Pack01.AdminBookDto">
+    	select * from book where bookID = ${bookID}
+	</select>
+	
+	
+	
+		<!-- 나은이꺼 //////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<select id="showUser" resultType="Pack01.User">
+		SELECT* FROM user where userID = #{userID}
+	</select>
+	
+	<select id="checkCount" resultType="int">
+		SELECT count(userID) as count from checkout where userID = #{userID}
+	</select>
+	
+	<select id="reservationCount" resultType="int">
+		SELECT count(userID) as count from reservation where userID = #{userID}
+	</select>
+	
+	<!--  대출 현황 join해서 출력	 -->
+	
+	<select id="checkOutList" resultMap="checkOutMap">
+		select checkNum,userID,ISBN,checkOutDate,checkInDate,checkState,bookID from checkout where userID=#{userID}
+	</select>
+	
+	<resultMap type="Pack01.CheckOutBean" id="checkOutMap">
+		<result property="checkNum" column="checkNum" />
+		<result property="userID" column="userID" />
+		<result property="ISBN" column="ISBN"/>
+		<result property="checkOutDate" column="checkOutDate" />
+		<result property="checkInDate" column="checkInDate" />
+		<result property="checkState" column="checkState" />
+		<result property="bookID" column="bookID" />
+		
+		<collection property="bookBean" column="{bookID = bookID}" ofType="Pack01.BookBean" select="selectBook" />
+		
+	</resultMap>
+	<select id="selectBook" resultType="Pack01.BookBean">
+		SELECT ISBN,bookID,bookName,author,publisher,reservationState 
+		FROM book 
+		WHERE bookID = #{bookID}
+	</select>
+	
+
+	<!-- ############################################################### -->
+	
+	<!-- 예약 현황 -->
+	<select id="reserList" resultMap="reserListMap">
+		select reserNum,userID,bookID,reservationApply,pickDate,pickCheck from reservation where userID=#{userID}
+	</select>
+	
+	<resultMap type="Pack01.ReservationBean" id="reserListMap">
+		<result property="reserNum" column="reserNum" />
+		<result property="userID" column="userID" />
+		<result property="bookID" column="bookID" />
+		<result property="reservationApply" column="reservationApply" />
+		<result property="pickDate" column="pickDate" />
+		<result property="pickCheck" column="pickCheck" />
+		<collection property="bookBean" column="{bookID = bookID}" ofType="Pack01.BookBean" select="selectBook" />
+		
+	</resultMap>
+	
+	<!--  ####################################################### -->
+	<!-- 예약 취소하기 -->
+	<delete id="deleteReser" parameterType="int">
+		DELETE FROM reservation where reserNum = #{reserNum}
+	</delete>
+	
+	<!-- isbn으로 책 검색하기 -->
+	<select id="bookDetail" resultMap="checkInMap">
+		SELECT * 
+		FROM book 
+		WHERE ISBN = '${ISBN}'
+	</select>
+	
+	<resultMap type="Pack01.BookBean" id="checkInMap">
+		<result property="ISBN" column="ISBN"/>
+		<result property="bookID" column="bookID" />
+		<result property="img" column="img"/>
+		<result property="bookName" column="bookName" />
+		<result property="author" column="author" />
+		<result property="publisher" column="publisher" />
+		<result property="checkOutState" column="checkOutState" />
+		<result property="reservationState" column="reservationState" />
+		<result property="detail" column="detail" />
+		
+		<collection property="checkOutBean" column="{bookID = bookID}" ofType="Pack01.CheckOutBean" select="checkInDate"></collection>
+	</resultMap>
+	
+	<select id="checkInDate" resultType="Pack01.CheckOutBean">
+		select * from checkout where bookID = ${bookID}
+	</select>
+	<update id="delayApply" parameterType="int">
+		update checkout set checkInDate = date_add(checkInDate,interval 7 day) 
+		where checkNum = #{checkNum}
+	</update>
+	
+	<select id="allcount" resultType="int">
+		select count(ISBN) from book where ISBN='${ISBN}'
+	</select>
+	<select id="recount" resultType="int">
+		select count(ISBN) from checkout where ISBN='${ISBN}'
+	</select>
+	<insert id="reserAdd" parameterType="Pack01.ReservationBean">
+		insert into reservation(ISBN,userID,bookID,pickDate) values('${ISBN}','${userID}',${bookID},DATE_ADD('${pickDate}',INTERVAL 2 DAY))
+	</insert>
+	
+	<!-- 예약하기 -->
+	<update id="bReserUp" parameterType="Pack01.ReservationBean">
+		update book set reservationState = 'O' where bookID=${bookID}
+	</update>
+	<update id="cReserUp" parameterType="Pack01.ReservationBean">
+		update checkout set reservationState = 'O' where bookID=#{bookID}
+	</update>	
+	<!-- 예약 취소하기 -->
+	<update id="bReserUp1" parameterType="int">
+		update book set reservationState = 'X' where bookID=${bookID}
+	</update>
+	<update id="cReserUp1" parameterType="int">
+		update checkout set reservationState = 'X' where bookID=${bookID}
+	</update>
+	
+	
+	
+	<select id="likeBook" resultMap="likeMap">
+		select userID,ISBN from heart where userID = #{userID}
+	</select>
+	<resultMap type="Pack01.like" id="likeMap">
+		<result property="userID" column="userID" />
+		<result property="ISBN" column="ISBN"/>
+		
+		<collection property="bookBean" column="{ISBN = ISBN}" ofType="Pack01.BookBean" select="BookList"></collection>
+	</resultMap>
+	
+	<select id="BookList" resultType="Pack01.BookBean">
+		select* from book where ISBN = '${ISBN}' group by ISBN
+	</select>
+	
+	<select id="likeCount" resultType="int">
+		select count(*) from heart where userID = #{userID}
+	</select>
+	<select id="userInfoCheck" resultType="String" parameterType="Pack01.userLoginDTO">
+		select * from user where userID = '${userID}' AND userPW = '${userPW}'
+	</select>
+	
+	<delete id="userDelete"  parameterType="Pack01.userLoginDTO">
+		delete from user where userID =#{userID} and userPW =#{userPW}
+	</delete>
+	
+	<insert id="likeOn" parameterType="Pack01.like">
+		 insert into heart(ISBN,userID) values('${ISBN}','${userID}')
+	
+	</insert>
+	<delete id="likeOff" parameterType="Pack01.like">
+		delete from heart where ISBN = '${ISBN}' and userID = '${userID}'
+	</delete>
+	
+	<select id="isLike" parameterType="Pack01.like" resultType="String">
+		select * from heart where ISBN = '${ISBN}' and userID ='${userID}'
+	</select>
+	
+	<!-- 진웅님꺼 ///////////////////////////////////////////////////////////////////////////////////////////////// -->
+		<!--
+	 searchItem = 책제목, 저자, 출판사
+	 searchText = input 박스에 입력받은 text값
+	 이 두가지를 사용해서 db조회를 한다음 bookBean형태로 리턴해준다!
+	  -->
+	<select id="SearchBook" parameterType="DTO.BookSearchDTO" resultType="Pack01.BookBean">
+  		  select * from book where ${searchItem} LIKE '%${searchText}%' group by ISBN order by bookID DESC
+	</select>
+	   <insert id="bookRegist" parameterType="Pack01.BookBean">
+      insert into book(bookName,detail,author,publisher,img,ISBN) values('${bookName}','${detail}','${author}','${publisher}','${img}','${ISBN}')
+   </insert>
+   	<update id="banap" parameterType="int">
+		update book set checkOutState = 'X' where bookID='${bookID}';
+		update checkout set checkState = 'X' where bookID='${bookID}';
+	</update>
+</mapper>

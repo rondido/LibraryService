@@ -1,0 +1,143 @@
+@charset "EUC-KR";
+
+section{
+	min-height: 100%;
+}
+
+.wrap{
+	padding-top : 70px;
+	width:100%;
+	margin: auto;
+}
+.notice_side{
+	width: 200px;
+	float: left;
+	margin-left: 50px;
+	height: 1500px;
+}
+
+.side_detail div{
+    display: inline-block;
+}
+.line{
+	margin-top : 15px;
+	border: 1px solid black;
+	width:100%;
+	height: 1px;
+	margin-bottom: 10px;
+}
+.current_menu{
+	font-weight: bold;
+	font-size: 20px;
+}
+.subject {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+.book_subject{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;	
+}
+.book_subject div{
+	width: 20%;
+}
+.subject div{
+	width: 20%;
+}
+.subject div:nth-child(2){
+	width: 40%;
+}
+.nolist{
+	margin-top:10px;
+	margin-bottom: 10px;
+	font-size : 25px;
+	color: lightgray;
+	text-align: center;
+}
+.notice_main{
+	width: 900px;
+    margin: auto;
+}
+.main_wrap{
+	outline: 1px;
+	margin: auto;
+	text-align: center;
+}
+.border{
+	height: 200px;
+	padding-bottom:50px; 
+}
+
+
+.qna_wrap{
+	margin-top: 20px;
+}
+.qna_menu1, .qna_menu2{
+	cursor: pointer;
+}
+.qna_menu1-1, .qna_menu1-2{
+	margin-top:10px;
+	padding:10px;
+	display:none;
+	border: 1px solid gray;
+	height: 0;
+}
+.bookView{
+	min-height: 200px;
+	height : 250px;
+	max-height: 400px;
+	display: inline-flex;
+}
+
+.bookImg{
+	height: 100%;
+	padding:13px;
+
+}
+.bookImg img{
+	height: 100%;
+	width: 180px;
+}
+.bookImg img:hover{
+	height: 250px;
+	width: 220px;
+}
+.bookSub{
+	height: 100%;
+	
+}
+.bookSub div{
+	padding-top : 7px;
+	height: 18%;
+}
+
+.bookList div{
+	display: inline;
+}
+.allBookList{
+	clear:both;
+}
+
+.pwdCheck{
+	 text-align: center;
+}
+
+.pwdBtn{
+	background-color: rgb(23,28,94);
+	color : white;
+	padding: 5px;
+	
+}
+.like_image{
+	float: right;
+}
+.detail_book{
+	width: 30%;
+}
+.pub{
+	width: 20%;
+}
